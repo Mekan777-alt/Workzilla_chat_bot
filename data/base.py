@@ -10,6 +10,7 @@ class User(Base):
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True)
+    user_id = Column(Integer)
     name = Column(String)
     auto_brand = Column(String)
     color_auto = Column(String)
