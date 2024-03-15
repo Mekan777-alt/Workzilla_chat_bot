@@ -14,3 +14,7 @@ pydantic==2.5.3
 pydantic_core==2.14.6
 typing_extensions==4.10.0
 yarl==1.9.4
+
+SQLAlchemy~=2.0.28
+num2words~=0.5.13
+python-dotenv~=1.0.1
