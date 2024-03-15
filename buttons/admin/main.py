@@ -1,5 +1,5 @@
 from aiogram.filters.callback_data import CallbackData
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from sqlalchemy.future import select
 
@@ -18,7 +18,7 @@ def main_markup():
     return reply_markup
 
 
-class CallbackAdminDataCategory(CallbackData, prefix='category'):
+class CallbackAdminDataCategory(CallbackData, prefix='categoryAdmin'):
     data: str
     action: int
 
@@ -41,7 +41,7 @@ def category_markup():
         return None
 
 
-class CallbackAdminDataCategoryOrder(CallbackData, prefix='category_order'):
+class CallbackAdminDataCategoryOrder(CallbackData, prefix='category_orderAdmin'):
     data: str
     action: int
 
@@ -63,3 +63,46 @@ def category_order_markup():
 
         return None
 
+
+class  CallbackAdminDataProduct(CallbackData, prefix='productAdmin'):
+    data: str
+    id: int
+
+
+def product_markup(product):
+    builder = InlineKeyboardBuilder()
+    try:
+        # products = db_session.scalars(select(Products)).where(Products.category_id == int(callback_data.action)))
+        builder.button(
+            text=str("Удалить продукт"), callback_data=CallbackAdminDataProduct(data=str(product.name),
+                                                                                id=int(product.id))
+        )
+        builder.adjust(1)
+        return builder.as_markup()
+
+    except Exception as e:
+
+        return None
+
+
+class CallbackAdminNewProduct(CallbackData, prefix='new_product_admin'):
+    data: str
+
+
+def new_category_markup():
+    button = [
+        [KeyboardButton(text='Добавить категорию')],
+        [KeyboardButton(text='Назад')]
+    ]
+    reply_markup = ReplyKeyboardMarkup(keyboard=button, resize_keyboard=True)
+
+    return reply_markup
+
+def new_product_markup():
+    button = [
+        [KeyboardButton(text='Добавить продукт')],
+        [KeyboardButton(text='Назад')]
+    ]
+    reply_markup = ReplyKeyboardMarkup(keyboard=button, resize_keyboard=True)
+
+    return reply_markup
