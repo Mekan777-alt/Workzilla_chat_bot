@@ -28,7 +28,7 @@ async def product_order(call: types.CallbackQuery, callback_data: CallbackDataCa
                                       f"Цена: {product.price}", reply_markup=add_basket(product.id, product.price))
 
     except Exception as e:
-        print(e)
+        pass
 
 
 @router.callback_query(CallbackDataAddBasket.filter())
