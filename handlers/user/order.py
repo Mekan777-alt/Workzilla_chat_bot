@@ -3,15 +3,17 @@ from aiogram import Router, F
 from sqlalchemy.future import select
 from context.user.order import UserOrder
 from aiogram.fsm.context import FSMContext
-from config import db_session
-from data.base import User, Products
-from buttons.user.main import CallbackDataCategoryOrder, category_order_markup, add_basket
+from config import db_session, bot
+from data.base import User, Products, Basket
+from buttons.user.main import CallbackDataCategoryOrder, category_order_markup, add_basket, CallbackDataAddBasket, \
+    order_markup, back_order, main_markup
 
 router = Router()
 
 
-@router.message(F.text == 'Заказать')
+@router.message(F.text.in_({'Заказать', 'Меню'}))
 async def catalog_products(message: types.Message):
+    await message.answer("При заказе от 5000 рублей, 2% скидка", reply_markup=order_markup())
     await message.answer("Выберите категорию", reply_markup=category_order_markup())
 
 
@@ -23,16 +25,41 @@ async def product_order(call: types.CallbackQuery, callback_data: CallbackDataCa
 
         for product in products:
             await call.message.answer(f"{product.name}\n\n"
-                                      f"Цена: {product.price}", reply_markup=add_basket(product.id))
+                                      f"Цена: {product.price}", reply_markup=add_basket(product.id, product.price))
 
     except Exception as e:
         print(e)
 
 
+@router.callback_query(CallbackDataAddBasket.filter())
+async def set_add_basket(call: types.CallbackQuery, callback_data: CallbackDataAddBasket):
+    try:
+
+        product = Basket(
+            product_id=callback_data.id,
+            user_id=call.from_user.id
+        )
+        db_session.add(product)
+        db_session.commit()
+
+        await call.answer('Товар добавлен в корзину')
+        await call.message.delete()
+
+    except Exception as e:
+
+        print(e)
+
+
 @router.message(F.text == 'Оформить заказ')
 async def order_start(message: types.Message, state: FSMContext):
-    await message.answer("Введите ваше имя")
+    await message.answer("Введите ваше имя", reply_markup=back_order())
     await state.set_state(UserOrder.user_name)
+
+
+@router.message(F.text == 'Назад')
+async def back_menu(message: types.Message, state: FSMContext):
+    await message.answer("Главное меню", reply_markup=order_markup())
+    await state.clear()
 
 
 @router.message(UserOrder.user_name)
@@ -69,4 +96,5 @@ async def set_number_auto(message: types.Message, state: FSMContext):
     )
     db_session.add(user)
     db_session.commit()
-    await message.answer("Принято!")
+    await message.answer("Принято!", reply_markup=main_markup())
+    await state.clear()

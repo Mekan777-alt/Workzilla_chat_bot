@@ -35,6 +35,7 @@ class Products(Base):
     category_id = Column(Integer, ForeignKey('category.id'))
 
     category = relationship('Category', back_populates='products')
+    basket = relationship('Basket', back_populates='products')
 
 
 class Order(Base):
@@ -54,3 +55,13 @@ class OrderProducts(Base):
     product_id = Column(Integer, ForeignKey('products.id'))
 
     order = relationship('Order', back_populates='product_order')
+
+
+class Basket(Base):
+    __tablename__ = 'basket'
+
+    id = Column(Integer, primary_key=True)
+    product_id = Column(Integer, ForeignKey('products.id'))
+    user_id = Column(Integer)
+
+    products = relationship('Products', back_populates='basket')

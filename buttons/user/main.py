@@ -63,9 +63,50 @@ def category_order_markup():
         return None
 
 
-def add_basket(product_id):
-    button = [
-        [InlineKeyboardButton(text='Добавить в корзину', callback_data=f'add_basket_{product_id}')]
+class CallbackDataAddBasket(CallbackData, prefix='add_basket'):
+    id: int
+    action: str
+
+
+def add_basket(product_id, price):
+    builder = InlineKeyboardBuilder()
+
+    builder.button(
+        text=f"Заказать за - {price}₽", callback_data=CallbackDataAddBasket(id=product_id, action='add')
+    )
+    return builder.as_markup()
+
+
+def order_markup():
+    buttons = [
+        [KeyboardButton(text='Меню'), KeyboardButton(text='Оформить заказ')],
+        [KeyboardButton(text='Корзина')],
     ]
-    markup = InlineKeyboardMarkup(inline_keyboard=button)
+
+    markup = ReplyKeyboardMarkup(resize_keyboard=True, keyboard=buttons)
+
+    return markup
+
+
+class CallbackDataRemoveBasket(CallbackData, prefix='remove_basket'):
+    id: int
+    action: str
+
+
+def delete_product_from_basket(product_id):
+
+    builder = InlineKeyboardBuilder()
+
+    builder.button(
+        text='Удалить из корзины', callback_data=CallbackDataRemoveBasket(id=product_id, action='remove')
+    )
+
+    return builder.as_markup()
+
+
+def back_order():
+    button = [
+        [KeyboardButton(text='Назад')]
+    ]
+    markup = ReplyKeyboardMarkup(keyboard=button, resize_keyboard=True)
     return markup

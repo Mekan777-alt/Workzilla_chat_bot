@@ -1,3 +1,4 @@
+import asyncio
 from config import db_session
 from aiogram import types, Router, F
 from buttons.user.main import category_markup, CallbackDataCategory, main_markup
@@ -21,6 +22,7 @@ async def filter_category(call: types.CallbackQuery, callback_data: CallbackData
             if product is not None:
                 await call.message.answer(f"{product.name}\n\n"
                                           f"Цена: {product.price}", reply_markup=main_markup())
+                await asyncio.sleep(1)
 
             else:
                 await call.message.edit_text("По данной категории нет товаров", reply_markup=main_markup())
