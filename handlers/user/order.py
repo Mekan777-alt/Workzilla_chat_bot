@@ -11,7 +11,7 @@ from buttons.user.main import CallbackDataCategoryOrder, category_order_markup, 
 router = Router()
 
 
-@router.message(F.text.in_({'Заказать', 'Меню'}))
+@router.message(F.text.in_({'👉 Заказать', '👉 Меню'}))
 async def catalog_products(message: types.Message):
     await message.answer("При заказе от 5000 рублей, 2% скидка", reply_markup=order_markup())
     await message.answer("Выберите категорию", reply_markup=category_order_markup())
@@ -50,13 +50,13 @@ async def set_add_basket(call: types.CallbackQuery, callback_data: CallbackDataA
         print(e)
 
 
-@router.message(F.text == 'Оформить заказ')
+@router.message(F.text == '👉 Оформить заказ')
 async def order_start(message: types.Message, state: FSMContext):
     await message.answer("Введите ваше имя", reply_markup=back_order())
     await state.set_state(UserOrder.user_name)
 
 
-@router.message(F.text == 'Назад')
+@router.message(F.text == '👉 Назад')
 async def back_menu(message: types.Message, state: FSMContext):
     await message.answer("Главное меню", reply_markup=order_markup())
     await state.clear()

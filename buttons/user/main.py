@@ -8,8 +8,8 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 def main_markup():
     button = [
-        [KeyboardButton(text='Каталог')],
-        [KeyboardButton(text='Заказать')]
+        [KeyboardButton(text='👉 Каталог')],
+        [KeyboardButton(text='👉 Заказать')]
     ]
 
     reply_markup = ReplyKeyboardMarkup(keyboard=button, resize_keyboard=True)
@@ -72,15 +72,15 @@ def add_basket(product_id, price):
     builder = InlineKeyboardBuilder()
 
     builder.button(
-        text=f"Заказать за - {price}₽", callback_data=CallbackDataAddBasket(id=product_id, action='add')
+        text=f"👉 Заказать за - {price}₽", callback_data=CallbackDataAddBasket(id=product_id, action='add')
     )
     return builder.as_markup()
 
 
 def order_markup():
     buttons = [
-        [KeyboardButton(text='Меню'), KeyboardButton(text='Оформить заказ')],
-        [KeyboardButton(text='Корзина')],
+        [KeyboardButton(text='👉 Меню'), KeyboardButton(text='👉 Оформить заказ')],
+        [KeyboardButton(text='👉 Корзина')],
     ]
 
     markup = ReplyKeyboardMarkup(resize_keyboard=True, keyboard=buttons)
@@ -98,7 +98,7 @@ def delete_product_from_basket(product_id):
     builder = InlineKeyboardBuilder()
 
     builder.button(
-        text='Удалить из корзины', callback_data=CallbackDataRemoveBasket(id=product_id, action='remove')
+        text='👉 Удалить из корзины', callback_data=CallbackDataRemoveBasket(id=product_id, action='remove')
     )
 
     return builder.as_markup()
@@ -106,7 +106,7 @@ def delete_product_from_basket(product_id):
 
 def back_order():
     button = [
-        [KeyboardButton(text='Назад')]
+        [KeyboardButton(text='👉 Назад')]
     ]
     markup = ReplyKeyboardMarkup(keyboard=button, resize_keyboard=True)
     return markup

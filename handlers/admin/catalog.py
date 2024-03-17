@@ -13,7 +13,7 @@ from data.base import Products, Category
 router = Router()
 
 
-@router.message(F.text == 'Изменить категорию')
+@router.message(F.text == '👉 Изменить категорию')
 async def catalog(message: types.Message, state: FSMContext):
     await message.answer("Выберите категорию", reply_markup=category_markup())
     await state.set_state(ProductState.category_id)
@@ -63,7 +63,7 @@ async def remove_product(call: types.CallbackQuery, callback_data: CallbackAdmin
         print(e)
 
 
-@router.message(F.text == 'Добавить категорию')
+@router.message(F.text == '👉 Добавить категорию')
 async def catalog(message: types.Message, state: FSMContext):
     await message.answer("Введите наименование: ", reply_markup=types.ReplyKeyboardRemove())
     await state.set_state(CategoryState.name)

@@ -8,7 +8,7 @@ from buttons.user.main import delete_product_from_basket, CallbackDataRemoveBask
 router = Router()
 
 
-@router.message(F.text == 'Корзина')
+@router.message(F.text == '👉 Корзина')
 async def set_basket(message: types.Message):
     try:
         basket = db_session.scalars(select(Basket).where(Basket.user_id == int(message.from_user.id)))

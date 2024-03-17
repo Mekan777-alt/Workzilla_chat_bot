@@ -8,7 +8,7 @@ from data.base import Products
 router = Router()
 
 
-@router.message(F.text == 'Каталог')
+@router.message(F.text == '👉 Каталог')
 async def catalog(message: types.Message):
     await message.answer("Выберите категорию", reply_markup=category_markup())
 

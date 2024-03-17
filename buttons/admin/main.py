@@ -9,8 +9,8 @@ from data.base import Category
 
 def main_markup():
     button = [
-        [KeyboardButton(text='Изменить категорию')],
-        [KeyboardButton(text='Добавить категорию')]
+        [KeyboardButton(text='👉 Изменить категорию')],
+        [KeyboardButton(text='👉 Добавить категорию')]
     ]
 
     reply_markup = ReplyKeyboardMarkup(keyboard=button, resize_keyboard=True)
@@ -64,7 +64,7 @@ def category_order_markup():
         return None
 
 
-class  CallbackAdminDataProduct(CallbackData, prefix='productAdmin'):
+class CallbackAdminDataProduct(CallbackData, prefix='productAdmin'):
     data: str
     id: int
 
@@ -91,17 +91,18 @@ class CallbackAdminNewProduct(CallbackData, prefix='new_product_admin'):
 
 def new_category_markup():
     button = [
-        [KeyboardButton(text='Добавить категорию')],
-        [KeyboardButton(text='Назад')]
+        [KeyboardButton(text='👉 Добавить категорию')],
+        [KeyboardButton(text='👉 Назад')]
     ]
     reply_markup = ReplyKeyboardMarkup(keyboard=button, resize_keyboard=True)
 
     return reply_markup
 
+
 def new_product_markup():
     button = [
-        [KeyboardButton(text='Добавить продукт')],
-        [KeyboardButton(text='Назад')]
+        [KeyboardButton(text='👉 Добавить продукт')],
+        [KeyboardButton(text='👉 Назад')]
     ]
     reply_markup = ReplyKeyboardMarkup(keyboard=button, resize_keyboard=True)
 

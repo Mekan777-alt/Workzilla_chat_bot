@@ -9,7 +9,7 @@ from data.base import Products
 router = Router()
 
 
-@router.message(F.text == 'Добавить продукт')
+@router.message(F.text == '👉 Добавить продукт')
 async def add_product(message: types.Message, state: FSMContext):
     await message.answer("Введите наименование: ", reply_markup=types.ReplyKeyboardRemove())
     await state.set_state(ProductState.name)
