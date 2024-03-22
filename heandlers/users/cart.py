@@ -71,7 +71,7 @@ async def process_cart(message: types.Message, state: FSMContext):
             if product is None:
                 db.query('DELETE FROM cart WHERE idx=?', (idx,))
             else:
-                _, title, body, image, price, _, _ = product
+                _, title, body, image, price, _, _, _ = product
 
                 markup = product_markup_2(idx, count_in_cart)
                 text = f'<b>{title}</b>\n'
@@ -170,7 +170,7 @@ async def checkout(message, state):
         for title, price, count_in_cart, info in data['products'].values():
             if count_in_cart > 0:
                 tp = count_in_cart * price
-                answer += f'<b>{title}</b> * {count_in_cart}шт. = {tp}₽\n'
+                answer += f'<b>{title}</b> * {count_in_cart}кг/шт. = {tp}₽\n'
                 total_price += tp
 
         if total_price > 5000:
@@ -266,7 +266,7 @@ async def confirm(message, state):
         for title, price, count_in_cart, info in data['products'].values():
             if count_in_cart > 0:
                 tp = count_in_cart * price
-                an += f'<b>{title}</b> - {count_in_cart}шт\n{info}\n\n'
+                an += f'<b>{title}</b> - {count_in_cart}кг/шт\n{info}\n\n'
                 total_price += tp
 
         if total_price > 5000:

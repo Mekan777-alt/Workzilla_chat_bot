@@ -68,7 +68,7 @@ def submit_markup():
 
 """remove"""
 
-category_cb = CallbackData('category', 'id', 'action')
+category_cb_1 = CallbackData('category', 'id', 'action')
 product_cb = CallbackData('product', 'id', 'action')
 category_cb_2 = CallbackData('category_2', 'id', 'action')
 product_cb_2 = CallbackData('product_2', 'id', 'action')
@@ -153,7 +153,7 @@ async def process_catalogue(message: types.Message):
 
     for idx, title in db.fetchall('SELECT * FROM categories'):
         markup.add(InlineKeyboardButton(
-            title, callback_data=category_cb.new(id=idx, action='view')))
+            title, callback_data=category_cb_1.new(id=idx, action='view_products_admin')))
 
     markup.add(InlineKeyboardButton(
         '+ Добавить категорию', callback_data='add_category'))
@@ -203,12 +203,11 @@ async def regime_callback_handler(query: CallbackQuery):
     await query.answer("Настройки обновлены!")
 
 
-@dp.callback_query_handler(category_cb.filter(action='view'))
+@dp.callback_query_handler(category_cb_1.filter(action='view_products_admin'))
 async def category_callback_handler(query: CallbackQuery, callback_data: dict, state: FSMContext):
     category_idx = callback_data['id']
 
-    products = db.fetchall('''SELECT * FROM products product
-    WHERE product.tag = (SELECT title FROM categories WHERE idx=?)''',
+    products = db.fetchall('''SELECT * FROM products product WHERE product.tag = (SELECT title FROM categories WHERE idx=?)''',
                            (category_idx,))
 
     await query.message.delete()
@@ -329,68 +328,69 @@ async def product_price(message: types.Message, state: FSMContext):
             await message.answer("Цена: ", reply_markup=back_markup())
 
 
-@dp.message_handler(lambda message: not message.text.isdigit(), state=ProductState.price)
+@dp.message_handler(lambda message: not message.text, state=ProductState.price)
 async def process_price_invalid(message: types.Message, state: FSMContext):
     markup = ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
-    markup.add(back_message)
+    markup.add(back_message, "Без подкатегории", "Без веса мешка")
     if message.text == back_message:
         await ProductState.image.set()
-        markup = back_markup()
         markup.add("Без фото")
         await message.answer("Другое изображение?", reply_markup=markup)
-    else:
-        await message.answer('Укажите цену в виде числа!')
 
 
-@dp.message_handler(lambda message: message.text.isdigit(), state=ProductState.price)
+@dp.message_handler(lambda message: message.text, state=ProductState.price)
 async def process_price(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['price'] = message.text
-        title = data['title']
-        body = data['body']
-        photo = data['image']
-        price = data['price']
-        await ProductState.next()
-        text = f'<b>{title}</b>\n\n{body}\n\nЦена: {price} рублей.'
+    await ProductState.next()
 
-        markup = check_markup()
-        if photo:
-            await message.answer_photo(photo=photo,
-                                       caption=text,
-                                       reply_markup=markup)
+    # Здесь добавляем запрос о подкатегории и весе мешка
+    await message.answer("Подкатегория (например, 'Овощи' или 'Фрукты') или нажмите одну из кнопок:",
+                         reply_markup=ReplyKeyboardMarkup(resize_keyboard=True, selective=True).add("Без подкатегории"))
+
+
+@dp.message_handler(state=ProductState.subcategory)
+async def product_subcategory(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        if message.text == "Без подкатегории":
+            data['subcategory'] = None
+            await ProductState.next()
         else:
-            await message.answer(text=text, reply_markup=markup)
+            data['subcategory'] = message.text
+            await ProductState.next()
+
+    # Запрос о весе мешка
+    await message.answer("Укажите вес мешка (кг) или нажмите 'Без веса мешка':",
+                         reply_markup=ReplyKeyboardMarkup(resize_keyboard=True, selective=True).add("Без веса мешка"))
 
 
-@dp.message_handler(lambda message: message.text not in [back_message, all_right_message], state=ProductState.confirm)
-async def process_confirm_invalid(message: types.Message, state: FSMContext):
-    await message.answer('Такого варианта не было.')
-
-
-@dp.message_handler(text=back_message, state=ProductState.confirm)
-async def process_confirm_back(message: types.Message, state: FSMContext):
-    await ProductState.price.set()
+@dp.message_handler(state=ProductState.weight)
+async def without_weight(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
-        await message.answer(f"Изменить цену с <b>{data['price']}</b>?", reply_markup=back_markup())
+        if message.text == "Без веса мешка":
+            data['weight'] = None
+        else:
+            data['weight'] = message.text
+    # После получения веса мешка вы можете сохранить данные продукта или выполнить другие действия здесь
+    title = data['title']
+    body = data['body']
+    image = data['image']
+    price = data['price']
+    subcategory = data['subcategory']
+    weight = data['weight']
 
 
-@dp.message_handler(text=all_right_message, state=ProductState.confirm)
-async def process_confirm(message: types.Message, state: FSMContext):
-    async with state.proxy() as data:
-        title = data['title']
-        body = data['body']
-        image = data['image']
-        price = data['price']
+        # Далее обработка продукта, сохранение в базе данных и т.д.
 
-        tag = db.fetchone(
-            'SELECT title FROM categories WHERE idx=?', (data['category_index'],))[0]
-        idx = md5(' '.join([title, body, price, tag]
-                           ).encode('utf-8')).hexdigest()
+    tag = db.fetchone(
+                'SELECT title FROM categories WHERE idx=?', (data['category_index'],))[0]
+    idx = md5(' '.join([title, body, price, tag]
+                               ).encode('utf-8')).hexdigest()
 
-        db.query('INSERT INTO products VALUES (?, ?, ?, ?, ?, ?)',
-                 (idx, title, body, image, int(price), tag))
-        db.query('INSERT INTO status VALUES (?, ?)',
-                 (idx, 'start'))
+    db.query('INSERT INTO products VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                     (idx, title, body, image, float(price), tag, weight, subcategory))
+    db.query('INSERT INTO status VALUES (?, ?)',
+                     (idx, 'start'))
 
     await state.finish()
     await message.answer('Готово!', reply_markup=ReplyKeyboardRemove())
@@ -408,7 +408,7 @@ async def delete_product_callback_handler(query: CallbackQuery, callback_data: d
 async def show_products(m, products, category_idx):
     await bot.send_chat_action(m.chat.id, ChatActions.TYPING)
 
-    for idx, title, body, image, price, tag in products:
+    for idx, title, body, image, price, tag, _, _ in products:
 
         text = f'<b>{title}</b>\n\n{body}\n\nЦена: {price} рублей.'
 

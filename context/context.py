@@ -16,6 +16,8 @@ class ProductState(StatesGroup):
     body = State()
     image = State()
     price = State()
+    subcategory = State()
+    weight = State()
     confirm = State()
 
 

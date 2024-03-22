@@ -12,7 +12,7 @@ class Database(object):
     def create_tables(self):
         self.query(
             'CREATE TABLE IF NOT EXISTS products (idx text, title text, body text, photo blob, price_per_kg float, '
-            'bag_weight int, tag text)')
+            'bag_weight int, tag text, pod_tag text)')
         self.query('CREATE TABLE IF NOT EXISTS orders (cid int, usr_name text, usr_address text, phone_number text,'
                    ' products text)')
         self.query('CREATE TABLE IF NOT EXISTS categories (idx text, title text)')
