@@ -139,6 +139,7 @@ class CheckoutState(StatesGroup):
     brand_auto = State()
     color_auto = State()
     number_auto = State()
+    pay = State()
     confirm = State()
 
 
@@ -252,10 +253,21 @@ async def process_auto_number(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['number_auto'] = message.text
 
-    await CheckoutState.confirm.set()
-    await confirm(message, state)
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.add("Наличными")
+    markup.add("Картой")
+    await CheckoutState.pay.set()
+    await message.answer("Выберите способ оплаты", reply_markup=markup)
     # await CheckoutState.next()
 
+
+@dp.message_handler(state=CheckoutState.pay)
+async def process_pay(message: types.Message, state: FSMContext):
+    async with state.proxy() as data:
+        data['pay'] = message.text
+
+    await CheckoutState.confirm.set()
+    await confirm(message, state)
 
 async def confirm(message, state):
     async with state.proxy() as data:
@@ -277,6 +289,7 @@ async def confirm(message, state):
         text = f"Убедитесь, что все правильно оформлено и подтвердите заказ.\n\n" \
                f"<b>Данные заказа</b>\n" \
                f"Получатель: {data['name']}\n" \
+                f"Способ оплаты: {data['pay']}\n" \
                f"Цвет машины: {data['color_auto']}\n" \
                f"Марка машины: {data['brand_auto']}\n" \
                f"Номер машины: {data['number_auto']}\n" \
@@ -308,6 +321,7 @@ async def process_confirm(message: Message, state: FSMContext):
         doc_path = open(doc, 'rb+')
         await bot.send_message(-4177653235, text=f"Детали заказа\n\n"
                                                  f"Получатель: {data['name']}\n"
+                                                 f"Способ оплаты: {data['pay']}\n"
                                                  f"Цвет машины: {data['color_auto']}\n"
                                                  f"Марка машины: {data['brand_auto']}\n"
                                                  f"Номер машины: {data['number_auto']}\n")

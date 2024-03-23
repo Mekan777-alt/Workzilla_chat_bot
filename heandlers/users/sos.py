@@ -73,7 +73,7 @@ async def process_done(message: types.Message, state: FSMContext):
         db.query('INSERT INTO questions VALUES (?, ?)',
                  (cid, data['question']))
         await message.answer('Отправлено!', reply_markup=main())
-        await bot.send_message(SUPPORT_CHAT, "SOS\n"
+        await bot.send_message(-4177653235, "SOS\n"
                                              "\n"
                                              f"Вопрос: {data['question']}\n"
                                              f"Номер телефона отправителя: {data['phone_number']}")

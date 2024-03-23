@@ -90,6 +90,7 @@ async def create_product_receipt(state, user_id):
 
     async with state.proxy() as data:
         document.add_paragraph(f"Получатель: {data['name']}")
+        document.add_paragraph(f"Способ оплаты: {data['pay']}\n")
         document.add_paragraph(f"Цвет машины: {data['color_auto']}")
         document.add_paragraph(f"Марка машины: {data['brand_auto']}")
         document.add_paragraph(f"Номер машины: {data['number_auto']}")
