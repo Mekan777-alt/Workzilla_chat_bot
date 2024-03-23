@@ -269,6 +269,7 @@ async def process_pay(message: types.Message, state: FSMContext):
     await CheckoutState.confirm.set()
     await confirm(message, state)
 
+
 async def confirm(message, state):
     async with state.proxy() as data:
         total_price = 0
@@ -285,14 +286,18 @@ async def confirm(message, state):
             discount = total_price * 0.02  # Скидка 2%
             total_price -= discount
             discount_applied = True
+        if data['pay'] == "Картой":
+            await message.answer("Карта СБЕРБАНКА\n\n"
+                                 "Тел. +79112779009\n\n"
+                                 "КЛАВДИЯ АНТОНОВНА С")
 
         text = f"Убедитесь, что все правильно оформлено и подтвердите заказ.\n\n" \
                f"<b>Данные заказа</b>\n" \
                f"Получатель: {data['name']}\n" \
-                f"Способ оплаты: {data['pay']}\n" \
+               f"Способ оплаты: {data['pay']}\n" \
                f"Цвет машины: {data['color_auto']}\n" \
                f"Марка машины: {data['brand_auto']}\n" \
-               f"Номер машины: {data['number_auto']}\n" \
+               f"Номер машины: {data['number_auto']}\n"
 
         if discount_applied:
             text += f"Общая стоимость: {total_price} рублей (Скидка 2% применена)\n\n" \

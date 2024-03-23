@@ -30,6 +30,18 @@ def time_dlv():
     return current_time
 
 
+product_meshok_cb = CallbackData('product_meshok', 'idx', 'action')
+
+
+def product_meshok_count(idx):
+    markup = types.InlineKeyboardMarkup()
+    for i in range(1, 11):
+        markup.add(
+            types.InlineKeyboardButton(text=str(i), callback_data=product_meshok_cb.new(idx=idx, action=str(i)))
+        )
+    return markup
+
+
 @dp.message_handler(text='🎒 Заказать')
 async def cmd_dyl(message: types.Message):
     await message.answer("При заказе от 5000 рублей 2% скидка", reply_markup=menu_markup())
@@ -80,11 +92,7 @@ async def add_product_callback_handler(query: types.CallbackQuery, callback_data
     if action.startswith('add_'):
         prefix = action.split('_')[1]
         if prefix == 'meshok':
-            quantity = db.fetchone('''SELECT bag_weight FROM products where idx=?''', (product_id,))
-            db.query(f'INSERT INTO cart VALUES (?, ?, ?, null, null, null, null, null, null)',
-                     (query.message.chat.id, product_id, quantity[0]))
-            await query.answer('Товар добавлен в корзину!')
-            await query.message.delete()
+            await query.message.edit_reply_markup(reply_markup=product_meshok_count(product_id))
         elif prefix == 'kg':
             db.query('INSERT INTO cart VALUES (?, ?, 1, null, null, null, null, null, null)',
                      (query.message.chat.id, product_id))
@@ -96,6 +104,21 @@ async def add_product_callback_handler(query: types.CallbackQuery, callback_data
                  (query.message.chat.id, product_id))
         await query.answer('Товар добавлен в корзину!')
         await query.message.delete()
+
+
+@dp.callback_query_handler(product_meshok_cb.filter())
+async def meshok_callback_handler(call: types.CallbackQuery, callback_data: dict):
+
+    product_id = callback_data['idx']
+    count = callback_data['action']
+
+    quantity = db.fetchone('''SELECT bag_weight FROM products where idx=?''', (product_id,))
+
+    new_quantity = int(quantity[0]) * int(count)
+    db.query(f'INSERT INTO cart VALUES (?, ?, ?, null, null, null, null, null, null)',
+             (call.message.chat.id, product_id, new_quantity))
+    await call.answer('Товар добавлен в корзину!')
+    await call.message.delete()
 
 
 async def show_products(m, products, status):

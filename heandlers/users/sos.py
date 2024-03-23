@@ -17,7 +17,7 @@ async def sos_cmd(message: types.Message):
 @dp.message_handler(text="📞 Позвонить")
 async def command_phone(message: types.Message):
     await message.answer("Пожалуйста свяжитесь с нами по номеру телефона\n"
-                         "тут номер телефона")
+                         "+7 (921) 953-54-99")
 
 
 @dp.message_handler(text="✉ Написать сообщение")

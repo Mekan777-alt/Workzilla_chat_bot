@@ -85,7 +85,7 @@ async def create_product_receipt(state, user_id):
             document.add_paragraph(f"Сумма без скидки: {total_price} руб.")
 
         document.add_paragraph(f"Всего наименований: {row_number - 1}, на сумму {total_price}р")
-        document.add_paragraph("(" + num2words(f"{int(total_price)}", lang='ru') + " 00 копеек)")
+        document.add_paragraph("(" + num2words(f"{int(total_price)}", lang='ru') + ")")
         document.add_paragraph("Отпустил: _______________________________")
 
     async with state.proxy() as data:
