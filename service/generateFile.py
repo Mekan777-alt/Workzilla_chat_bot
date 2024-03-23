@@ -88,6 +88,12 @@ async def create_product_receipt(state, user_id):
         document.add_paragraph("(" + num2words(f"{int(total_price)}", lang='ru') + " 00 копеек)")
         document.add_paragraph("Отпустил: _______________________________")
 
+    async with state.proxy() as data:
+        document.add_paragraph(f"Получатель: {data['name']}")
+        document.add_paragraph(f"Цвет машины: {data['color_auto']}")
+        document.add_paragraph(f"Марка машины: {data['brand_auto']}")
+        document.add_paragraph(f"Номер машины: {data['number_auto']}")
+
     document.save("productReceipt.docx")
     doc = f"{os.getcwd()}/productReceipt.docx"
     doc_path = open(doc, 'rb+')
