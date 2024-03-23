@@ -23,7 +23,7 @@ def back_markup():
 
 def check_markup():
     markup = ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
-    markup.row('👈 Назад', '✅ Все верно')
+    markup.row('👈 Назад', '✅ Продолжить')
 
     return markup
 

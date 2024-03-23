@@ -192,7 +192,7 @@ async def process_pre_checkout_query(pre_checkout_query: types.PreCheckoutQuery)
     await bot.answer_pre_checkout_query(pre_checkout_query.id, ok=True)
 
 
-@dp.message_handler(lambda message: message.text not in ['✅ Все верно', '👈 Назад'],
+@dp.message_handler(lambda message: message.text not in ['✅ Продолжить', '👈 Назад'],
                     state=CheckoutState.check_cart)
 async def process_check_cart_invalid(message: Message):
     await message.reply('Такого варианта не было.')
@@ -210,7 +210,7 @@ async def process_name_back(message: Message, state: FSMContext):
     await checkout(message, state)
 
 
-@dp.message_handler(text='✅ Все верно', state=CheckoutState.check_cart)
+@dp.message_handler(text='✅ Продолжить', state=CheckoutState.check_cart)
 async def dylevery(message: types.Message, state: FSMContext):
     await CheckoutState.name.set()
     await message.answer('Укажите свое имя.', reply_markup=types.ReplyKeyboardRemove())
