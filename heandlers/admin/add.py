@@ -353,7 +353,7 @@ async def process_price(message: types.Message, state: FSMContext):
 async def product_subcategory(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         if message.text == "Без подкатегории":
-            data['subcategory'] = None
+            data['subcategory'] = "Просмотреть продукты"
             await ProductState.next()
         else:
             data['subcategory'] = message.text
