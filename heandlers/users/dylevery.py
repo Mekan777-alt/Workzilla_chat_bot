@@ -16,14 +16,15 @@ def show_pod_category_dylevery(products):
         if product[7] in category:
             pass
         else:
-            if product[7].split():
-                action_cat = product[7].split()
+            action_cat = product[7].split()
+            if action_cat:
                 markup.add(types.InlineKeyboardButton(text=product[7], callback_data=pod_category_dylevery.new(id=1,
-                                                                                                           action=str(
-                                                                                                               action_cat[
-                                                                                                                   0]))))
+                                                                                                               action=str(
+                                                                                                                   action_cat[
+                                                                                                                       0]))))
             else:
-                markup.add(types.InlineKeyboardButton(text=product[7], callback_data=pod_category_dylevery.new(id=1, action=str(product[7]))))
+                markup.add(types.InlineKeyboardButton(text=product[7], callback_data=pod_category_dylevery.new(id=1,
+                                                                                                               action=str(product[7]))))
             category.append(product[7])
     return markup
 
