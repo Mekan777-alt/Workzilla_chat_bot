@@ -23,7 +23,7 @@ def show_pod_category_dylevery(products):
                                                                                                                action_cat[
                                                                                                                    0]))))
             else:
-                markup.add(types.InlineKeyboardButton(text=product[7], callback_data=pod_category_dylevery.new(id=1, action=str(action_cat[0]))))
+                markup.add(types.InlineKeyboardButton(text=product[7], callback_data=pod_category_dylevery.new(id=1, action=str(product[7]))))
             category.append(product[7])
     return markup
 
