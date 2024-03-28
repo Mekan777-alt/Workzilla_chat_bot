@@ -6,29 +6,6 @@ from config import dp, db, bot
 from aiogram import types
 from aiogram.utils.callback_data import CallbackData
 
-pod_category_dylevery = CallbackData('podcategory_dylevery', 'id', 'action')
-
-
-def show_pod_category_dylevery(products):
-    markup = types.InlineKeyboardMarkup()
-    category = []
-    for product in products:
-        if product[7] in category:
-            pass
-        else:
-            action_cat = product[7].split()
-            if action_cat:
-                markup.add(types.InlineKeyboardButton(text=product[7], callback_data=pod_category_dylevery.new(id=1,
-                                                                                                               action=str(
-                                                                                                                   action_cat[
-                                                                                                                       0]))))
-            else:
-                markup.add(types.InlineKeyboardButton(text=product[7], callback_data=pod_category_dylevery.new(id=1,
-                                                                                                               action=str(product[7]))))
-            category.append(product[7])
-    return markup
-
-
 def time_dlv():
     current_time = str(datetime.now().time())
     return current_time
@@ -57,25 +34,13 @@ async def menu_dyl(message: types.Message):
     await message.answer("Выберите раздел", reply_markup=categories_markup())
 
 
-@dp.callback_query_handler(pod_category_dylevery.filter())
-async def set_pod_category(call: types.CallbackQuery, callback_data: pod_category_dylevery):
-    pod_category = db.fetchone("""SELECT pod_tag FROM products WHERE pod_tag LIKE ?""",
-                               ('%' + callback_data['action'] + '%',))
-    products = db.fetchall("""SELECT * FROM products WHERE pod_tag=?""", (pod_category[0],))
-    status = db.fetchall("SELECT * FROM status")
-    await show_products(call.message, products, status)
-
-
 @dp.callback_query_handler(category_cb.filter(action='view_2'))
 async def menu_dyl(call: types.CallbackQuery, callback_data: dict):
     products = db.fetchall('''SELECT * FROM products
         WHERE products.tag = (SELECT title FROM categories WHERE idx=?)''',
                            (callback_data['id'],))
     status = db.fetchall("SELECT * FROM status")
-    if products[0][7] is not None:
-        await call.message.edit_reply_markup(reply_markup=show_pod_category_dylevery(products))
-    else:
-        await show_products(call.message, products, status)
+    await show_products(call.message, products, status)
 
 
 @dp.callback_query_handler(add_basket_cb.filter(action='add_basket'))
@@ -131,7 +96,7 @@ async def show_products(m, products, status):
 
         await bot.send_chat_action(m.chat.id, ChatActions.TYPING)
     else:
-        for idx, title, body, image, price, _, _, _ in products:
+        for idx, title, body, image, price, _, _ in products:
             for id, stat in status:
                 if idx in id and stat in 'start':
                     # markup = product_markup(idx, price)

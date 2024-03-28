@@ -345,21 +345,6 @@ async def process_price(message: types.Message, state: FSMContext):
     await ProductState.next()
 
     # Здесь добавляем запрос о подкатегории и весе мешка
-    await message.answer("Подкатегория (например, 'Овощи' или 'Фрукты') или нажмите одну из кнопок:",
-                         reply_markup=ReplyKeyboardMarkup(resize_keyboard=True, selective=True).add("Без подкатегории"))
-
-
-@dp.message_handler(state=ProductState.subcategory)
-async def product_subcategory(message: types.Message, state: FSMContext):
-    async with state.proxy() as data:
-        if message.text == "Без подкатегории":
-            data['subcategory'] = "Просмотреть продукты"
-            await ProductState.next()
-        else:
-            data['subcategory'] = message.text
-            await ProductState.next()
-
-    # Запрос о весе мешка
     await message.answer("Укажите вес мешка (кг) или нажмите 'Без веса мешка':",
                          reply_markup=ReplyKeyboardMarkup(resize_keyboard=True, selective=True).add("Без веса мешка"))
 
@@ -376,7 +361,6 @@ async def without_weight(message: types.Message, state: FSMContext):
     body = data['body']
     image = data['image']
     price = data['price']
-    subcategory = data['subcategory']
     weight = data['weight']
 
 
@@ -387,8 +371,8 @@ async def without_weight(message: types.Message, state: FSMContext):
     idx = md5(' '.join([title, body, price, tag]
                                ).encode('utf-8')).hexdigest()
 
-    db.query('INSERT INTO products VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-                     (idx, title, body, image, float(price), tag, weight, subcategory))
+    db.query('INSERT INTO products VALUES (?, ?, ?, ?, ?, ?, ?)',
+                     (idx, title, body, image, float(price), tag, weight))
     db.query('INSERT INTO status VALUES (?, ?)',
                      (idx, 'start'))
 
@@ -408,7 +392,7 @@ async def delete_product_callback_handler(query: CallbackQuery, callback_data: d
 async def show_products(m, products, category_idx):
     await bot.send_chat_action(m.chat.id, ChatActions.TYPING)
 
-    for idx, title, body, image, price, tag, _, _ in products:
+    for idx, title, body, image, price, tag, _ in products:
 
         text = f'<b>{title}</b>\n\n{body}\n\nЦена: {price} рублей.'
 
