@@ -341,7 +341,20 @@ async def process_price_invalid(message: types.Message, state: FSMContext):
 @dp.message_handler(lambda message: message.text, state=ProductState.price)
 async def process_price(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
-        data['price'] = message.text
+        # Обработка ввода пользователя
+        price_text = message.text.strip()  # Удаление лишних пробелов
+        if ',' in price_text:
+            # Если в тексте присутствует запятая, заменяем её на точку
+            price_text = price_text.replace(',', '.')
+
+        try:
+            # Попытка преобразовать текст в число
+            price = float(price_text)
+            data['price'] = price
+        except ValueError:
+            # Если не удалось преобразовать в число, сообщаем пользователю об ошибке
+            await message.answer("Пожалуйста, укажите корректное значение цены.")
+            return
     await ProductState.next()
 
     # Здесь добавляем запрос о подкатегории и весе мешка
