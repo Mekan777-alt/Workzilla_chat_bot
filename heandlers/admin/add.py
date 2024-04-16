@@ -349,7 +349,7 @@ async def process_price(message: types.Message, state: FSMContext):
 
         try:
             # Попытка преобразовать текст в число
-            price = float(price_text)
+            price = price_text
             data['price'] = price
         except ValueError:
             # Если не удалось преобразовать в число, сообщаем пользователю об ошибке
